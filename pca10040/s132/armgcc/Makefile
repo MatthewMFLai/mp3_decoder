@@ -24,6 +24,21 @@ SRC_FILES += \
   $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
   $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/bitstream.cpp \
+  $(PROJ_DIR)/buffers.cpp \
+  $(PROJ_DIR)/dct32.cpp \
+  $(PROJ_DIR)/dequant.cpp \
+  $(PROJ_DIR)/dqchan.cpp \
+  $(PROJ_DIR)/huffman.cpp \
+  $(PROJ_DIR)/hufftabs.cpp \
+  $(PROJ_DIR)/imdct.cpp \
+  $(PROJ_DIR)/mp3dec.cpp \
+  $(PROJ_DIR)/mp3tabs.cpp \
+  $(PROJ_DIR)/polyphase.cpp \
+  $(PROJ_DIR)/scalfact.cpp \
+  $(PROJ_DIR)/stproc.cpp \
+  $(PROJ_DIR)/subband.cpp \
+  $(PROJ_DIR)/trigtabs.cpp \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \

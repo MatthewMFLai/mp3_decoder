@@ -388,7 +388,7 @@ int DecodeHuffman(MP3DecInfo *mp3DecInfo, unsigned char *buf, int *bitOffset, in
 	FrameHeader *fh;
 	SideInfo *si;
 	SideInfoSub *sis;
-	ScaleFactorInfo *sfi;
+	//ScaleFactorInfo *sfi;
 	HuffmanInfo *hi;
 
 	/* validate pointers */
@@ -398,7 +398,7 @@ int DecodeHuffman(MP3DecInfo *mp3DecInfo, unsigned char *buf, int *bitOffset, in
 	fh = ((FrameHeader *)(mp3DecInfo->FrameHeaderPS));
 	si = ((SideInfo *)(mp3DecInfo->SideInfoPS));
 	sis = &si->sis[gr][ch];
-	sfi = ((ScaleFactorInfo *)(mp3DecInfo->ScaleFactorInfoPS));
+	//sfi = ((ScaleFactorInfo *)(mp3DecInfo->ScaleFactorInfoPS));
 	hi = (HuffmanInfo*)(mp3DecInfo->HuffmanInfoPS);
 
 	if (huffBlockBits < 0)

@@ -44,7 +44,7 @@
 #ifndef _MP3DEC_H
 #define _MP3DEC_H
 
-#include <Arduino.h>
+//#include <Arduino.h>
 
 #if defined(_WIN32) && !defined(_WIN32_WCE)
 #
@@ -67,6 +67,8 @@
 #elif defined(__CORTEX_M) && __CORTEX_M == 0x04U
 #
 #elif defined(__MK66FX1M0__) || defined(__MK20DX256__)
+#
+#elif defined(NRF52)
 #
 #else
 #error No platform defined. See valid options in mp3dec.h
