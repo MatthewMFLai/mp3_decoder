@@ -39,6 +39,7 @@ SRC_FILES += \
   $(PROJ_DIR)/stproc.cpp \
   $(PROJ_DIR)/subband.cpp \
   $(PROJ_DIR)/trigtabs.cpp \
+  $(PROJ_DIR)/Adafruit_MP3.cpp \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \

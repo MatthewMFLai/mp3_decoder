@@ -1,7 +1,7 @@
 #ifndef LIB_ADAFRUIT_MP3_H
 #define LIB_ADAFRUIT_MP3_H
 
-#include "Arduino.h"
+#include "nrf52.h"
 
 #if defined(__SAMD51__) || defined(__MK66FX1M0__) || defined(__MK20DX256__)|| defined(NRF52)
 #define ARM_MATH_CM4
@@ -47,7 +47,7 @@ struct Adafruit_MP3_outbuf {
 
 class Adafruit_MP3 {
 public:
-	Adafruit_MP3() : hMP3Decoder() { inbufend = (inBuf + INBUF_SIZE); }
+	Adafruit_MP3() : hMP3Decoder(), playing(false) { inbufend = (inBuf + INBUF_SIZE); }
 	~Adafruit_MP3() { MP3FreeDecoder(hMP3Decoder); };
 	bool begin();
 	void setBufferCallback(int (*fun_ptr)(uint8_t *, int));
@@ -75,7 +75,7 @@ private:
 	uint8_t *writePtr;
 	uint8_t inBuf[INBUF_SIZE];
 	uint8_t *inbufend;
-	bool playing = false;
+	bool playing;
 	
 	int (*bufferCallback)(uint8_t *, int);
 	int findID3Offset(uint8_t *readPtr);

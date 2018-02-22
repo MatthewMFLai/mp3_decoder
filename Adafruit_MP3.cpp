@@ -1,5 +1,6 @@
 #include "Adafruit_MP3.h"
 #include "mp3common.h"
+#include "nrf_nvic.h"
 
 #if defined(__SAMD51__) // feather/metro m4
 
@@ -292,13 +293,13 @@ int Adafruit_MP3::findID3Offset(uint8_t *readPtr)
  *  @return     none
  ****************************************************************************************/
 int Adafruit_MP3::tick(){
-	noInterrupts();
+	__sd_nvic_irq_disable();
 	if(outbufs[activeOutbuf].count == 0 && outbufs[!activeOutbuf].count > 0){
 		//time to swap the buffers
 		activeOutbuf = !activeOutbuf;
 		outptr = outbufs[activeOutbuf].buffer;
 	}
-	interrupts();
+	__sd_nvic_irq_enable();
 	
 	//if we are running out of samples, and don't yet have another buffer ready, get busy.
 	if(outbufs[activeOutbuf].count < BUFFER_LOWER_THRESH && outbufs[!activeOutbuf].count < (OUTBUF_SIZE) >> 1){
