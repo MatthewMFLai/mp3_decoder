@@ -24,22 +24,22 @@ SRC_FILES += \
   $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
   $(PROJ_DIR)/main.c \
-  $(PROJ_DIR)/bitstream.cpp \
-  $(PROJ_DIR)/buffers.cpp \
-  $(PROJ_DIR)/dct32.cpp \
-  $(PROJ_DIR)/dequant.cpp \
-  $(PROJ_DIR)/dqchan.cpp \
-  $(PROJ_DIR)/huffman.cpp \
-  $(PROJ_DIR)/hufftabs.cpp \
-  $(PROJ_DIR)/imdct.cpp \
-  $(PROJ_DIR)/mp3dec.cpp \
-  $(PROJ_DIR)/mp3tabs.cpp \
-  $(PROJ_DIR)/polyphase.cpp \
-  $(PROJ_DIR)/scalfact.cpp \
-  $(PROJ_DIR)/stproc.cpp \
-  $(PROJ_DIR)/subband.cpp \
-  $(PROJ_DIR)/trigtabs.cpp \
-  $(PROJ_DIR)/Adafruit_MP3.cpp \
+  $(PROJ_DIR)/bitstream.c \
+  $(PROJ_DIR)/buffers.c \
+  $(PROJ_DIR)/dct32.c \
+  $(PROJ_DIR)/dequant.c \
+  $(PROJ_DIR)/dqchan.c \
+  $(PROJ_DIR)/huffman.c \
+  $(PROJ_DIR)/hufftabs.c \
+  $(PROJ_DIR)/imdct.c \
+  $(PROJ_DIR)/mp3dec.c \
+  $(PROJ_DIR)/mp3tabs.c \
+  $(PROJ_DIR)/polyphase.c \
+  $(PROJ_DIR)/scalfact.c \
+  $(PROJ_DIR)/stproc.c \
+  $(PROJ_DIR)/subband.c \
+  $(PROJ_DIR)/trigtabs.c \
+  $(PROJ_DIR)/Adafruit_MP3.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -182,6 +182,7 @@ CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums 
+CFLAGS += -save-temps
 
 # C++ flags common to all targets
 CXXFLAGS += \

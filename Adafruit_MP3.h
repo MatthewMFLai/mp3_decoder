@@ -40,31 +40,12 @@
 
 #endif
 
-struct Adafruit_MP3_outbuf {
+typedef struct {
 	volatile int count;
 	int16_t buffer[OUTBUF_SIZE];	
-};
+} Adafruit_MP3_outbuf;
 
-class Adafruit_MP3 {
-public:
-	Adafruit_MP3() : hMP3Decoder(), playing(false) { inbufend = (inBuf + INBUF_SIZE); }
-	~Adafruit_MP3() { MP3FreeDecoder(hMP3Decoder); };
-	bool begin();
-	void setBufferCallback(int (*fun_ptr)(uint8_t *, int));
-	void setSampleReadyCallback(void (*fun_ptr)(int16_t, int16_t));
-		
-	void play();
-	void stop();
-	void resume();
-	
-	int tick();
-
-#if defined(__MK66FX1M0__) || defined(__MK20DX256__) // teensy 3.6
-	static IntervalTimer _MP3Timer;
-	static uint32_t currentPeriod;
-#endif
-	
-private:
+typedef struct {
 #if defined(__SAMD51__) // feather/metro m4
 	Tc *_tc;
 #endif
@@ -77,9 +58,28 @@ private:
 	uint8_t *inbufend;
 	bool playing;
 	
-	int (*bufferCallback)(uint8_t *, int);
-	int findID3Offset(uint8_t *readPtr);
+	int (*bufferCallback)(uint8_t *, int);	
+} Adafruit_MP3;
+
+void Adafruit_MP3_construct(Adafruit_MP3 *p_data)
+{
+	p_data->hMP3Decoder = NULL;
+	p_data->playing = false;
+	p_data->inbufend = p_data->inBuf + INBUF_SIZE;
+}
 	
+void Adafruit_MP3_destruct(Adafruit_MP3 *p_data)
+{
+	MP3FreeDecoder(p_data->hMP3Decoder);
 };
 
+bool Adafruit_MP3_begin(Adafruit_MP3 *p_data);
+void Adafruit_MP3_setBufferCallback(Adafruit_MP3 *p_data, int (*fun_ptr)(uint8_t *, int));
+void Adafruit_MP3_setSampleReadyCallback(void (*fun_ptr)(int16_t, int16_t));
+void Adafruit_MP3_play(Adafruit_MP3 *p_data);
+void Adafruit_MP3_stop(void);
+void Adafruit_MP3_resume(void);
+int Adafruit_MP3_findID3Offset(uint8_t *readPtr);
+int Adafruit_MP3_tick(Adafruit_MP3 *p_data);
+	
 #endif

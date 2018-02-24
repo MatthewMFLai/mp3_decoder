@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "Adafruit_MP3.h"
 #include "mp3common.h"
 #include "nrf_nvic.h"
@@ -8,8 +9,8 @@
 
 #elif defined(__MK66FX1M0__) || defined(__MK20DX256__) // teensy 3.6
 
-IntervalTimer Adafruit_MP3::_MP3Timer;
-uint32_t Adafruit_MP3::currentPeriod;
+static IntervalTimer _MP3Timer;
+static uint32_t currentPeriod;
 static void MP3_Handler();
 
 #endif
@@ -33,7 +34,7 @@ static inline void enableTimer()
 	MP3_TC->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE;
 	WAIT_TC16_REGS_SYNC(MP3_TC)
 #elif defined(__MK66FX1M0__) || defined(__MK20DX256__) // teensy 3.6
-	Adafruit_MP3::_MP3Timer.begin(MP3_Handler, Adafruit_MP3::currentPeriod);
+	Adafruit_MP3::_MP3Timer.begin(MP3_Handler, currentPeriod);
 
 #elif defined(NRF52)
 	MP3_TIMER->TASKS_START = 1;
@@ -122,7 +123,7 @@ static inline void configureTimer()
 
 #elif defined(__MK66FX1M0__) || defined(__MK20DX256__) // teensy 3.6
 	float sec = 1.0 / (float)MP3_SAMPLE_RATE_DEFAULT;
-	Adafruit_MP3::currentPeriod = sec * 1000000UL;
+	currentPeriod = sec * 1000000UL;
 #endif
 }
 
@@ -148,7 +149,7 @@ static inline void updateTimerFreq(uint32_t freq)
 	WAIT_TC16_REGS_SYNC(MP3_TC);
 #elif defined(__MK66FX1M0__) || defined(__MK20DX256__) // teensy 3.6
 	float sec = 1.0 / (float)freq;
-	Adafruit_MP3::currentPeriod = sec * 1000000UL;
+	currentPeriod = sec * 1000000UL;
 
 #elif defined(NRF52)
 
@@ -165,14 +166,14 @@ static inline void updateTimerFreq(uint32_t freq)
  *
  *  @return     none
  ****************************************************************************************/
-bool Adafruit_MP3::begin()
+bool Adafruit_MP3_begin(Adafruit_MP3 *p_data)
 {	
 	sampleReadyCallback = NULL;
-	bufferCallback = NULL;
+	p_data->bufferCallback = NULL;
 
 	configureTimer();
 	
-	if ((hMP3Decoder = MP3InitDecoder()) == 0)
+	if ((p_data->hMP3Decoder = MP3InitDecoder()) == 0)
 	{
 		return false;
 	}
@@ -192,7 +193,10 @@ bool Adafruit_MP3::begin()
  *
  *  @return     none
  ****************************************************************************************/
-void Adafruit_MP3::setBufferCallback(int (*fun_ptr)(uint8_t *, int)){ bufferCallback = fun_ptr; }
+void Adafruit_MP3_setBufferCallback(Adafruit_MP3 *p_data, int (*fun_ptr)(uint8_t *, int))
+{
+    p_data->bufferCallback = fun_ptr;
+}
 
 /**
  *****************************************************************************************
@@ -207,7 +211,10 @@ void Adafruit_MP3::setBufferCallback(int (*fun_ptr)(uint8_t *, int)){ bufferCall
  *
  *  @return     none
  ****************************************************************************************/
-void Adafruit_MP3::setSampleReadyCallback(void (*fun_ptr)(int16_t, int16_t)) { sampleReadyCallback = fun_ptr; }
+void Adafruit_MP3_setSampleReadyCallback(void (*fun_ptr)(int16_t, int16_t))
+{
+	sampleReadyCallback = fun_ptr;
+}
 
 /**
  *****************************************************************************************
@@ -217,16 +224,16 @@ void Adafruit_MP3::setSampleReadyCallback(void (*fun_ptr)(int16_t, int16_t)) { s
  *
  *  @return     none
  ****************************************************************************************/
-void Adafruit_MP3::play()
+void Adafruit_MP3_play(Adafruit_MP3 *p_data)
 {
-	bytesLeft = 0;
+	p_data->bytesLeft = 0;
 	activeOutbuf = 0;
-	readPtr = inBuf;
-	writePtr = inBuf;
+	p_data->readPtr = p_data->inBuf;
+	p_data->writePtr = p_data->inBuf;
 	
 	outbufs[0].count = 0;
 	outbufs[1].count = 0;
-	playing = false;
+	p_data->playing = false;
 
 	//start the playback timer
 	enableTimer();
@@ -242,7 +249,7 @@ void Adafruit_MP3::play()
  *
  *  @return     none
  ****************************************************************************************/
-void Adafruit_MP3::stop()
+void Adafruit_MP3_stop(void)
 {
 	disableTimer();
 }
@@ -254,7 +261,7 @@ void Adafruit_MP3::stop()
  *
  *  @return     none
  ****************************************************************************************/
-void Adafruit_MP3::resume()
+void Adafruit_MP3_resume(void)
 {
 	enableTimer();
 }
@@ -267,7 +274,7 @@ void Adafruit_MP3::resume()
  *
  *  @return     none
  ****************************************************************************************/
-int Adafruit_MP3::findID3Offset(uint8_t *readPtr)
+int Adafruit_MP3_findID3Offset(uint8_t *readPtr)
 {
 	char header[10];
 	memcpy(header, readPtr, 10);
@@ -292,7 +299,7 @@ int Adafruit_MP3::findID3Offset(uint8_t *readPtr)
  *
  *  @return     none
  ****************************************************************************************/
-int Adafruit_MP3::tick(){
+int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 	__sd_nvic_irq_disable();
 	if(outbufs[activeOutbuf].count == 0 && outbufs[!activeOutbuf].count > 0){
 		//time to swap the buffers
@@ -305,52 +312,52 @@ int Adafruit_MP3::tick(){
 	if(outbufs[activeOutbuf].count < BUFFER_LOWER_THRESH && outbufs[!activeOutbuf].count < (OUTBUF_SIZE) >> 1){
 		
 		//dumb, but we need to move any bytes to the beginning of the buffer
-		if(readPtr != inBuf && bytesLeft < BUFFER_LOWER_THRESH){
-			memmove(inBuf, readPtr, bytesLeft);
-			readPtr = inBuf;
-			writePtr = inBuf + bytesLeft;
+		if(p_data->readPtr != p_data->inBuf && p_data->bytesLeft < BUFFER_LOWER_THRESH){
+			memmove(p_data->inBuf, p_data->readPtr, p_data->bytesLeft);
+			p_data->readPtr = p_data->inBuf;
+			p_data->writePtr = p_data->inBuf + p_data->bytesLeft;
 		}
 		
 		//get more data from the user application
-		if(bufferCallback != NULL){
-			if(inbufend - writePtr > 0){
-				int bytesRead = bufferCallback(writePtr, inbufend - writePtr);
-				writePtr += bytesRead;
-				bytesLeft += bytesRead;
+		if(p_data->bufferCallback != NULL){
+			if(p_data->inbufend - p_data->writePtr > 0){
+				int bytesRead = p_data->bufferCallback(p_data->writePtr, p_data->inbufend - p_data->writePtr);
+				p_data->writePtr += bytesRead;
+				p_data->bytesLeft += bytesRead;
 			}
 		}
 		
 		MP3FrameInfo frameInfo;
 		int err, offset;
 		
-		if(!playing){
+		if(!p_data->playing){
 			/* Find start of next MP3 frame. Assume EOF if no sync found. */
-			offset = MP3FindSyncWord(readPtr, bytesLeft);
+			offset = MP3FindSyncWord(p_data->readPtr, p_data->bytesLeft);
 			if(offset >= 0){
-				readPtr += offset;
-				bytesLeft -= offset;
+				p_data->readPtr += offset;
+				p_data->bytesLeft -= offset;
 			}
 			
-			err = MP3GetNextFrameInfo(hMP3Decoder, &frameInfo, readPtr);
+			err = MP3GetNextFrameInfo(p_data->hMP3Decoder, &frameInfo, p_data->readPtr);
 			if(err != ERR_MP3_INVALID_FRAMEHEADER){
 				if(frameInfo.samprate != MP3_SAMPLE_RATE_DEFAULT)
 				{
 					updateTimerFreq(frameInfo.samprate);
 				}
-				playing = true;
+				p_data->playing = true;
 				channels = frameInfo.nChans;
 			}
 			return 1;
 		}
 		
-		offset = MP3FindSyncWord(readPtr, bytesLeft);
+		offset = MP3FindSyncWord(p_data->readPtr, p_data->bytesLeft);
 		if(offset >= 0){
-			readPtr += offset;
-			bytesLeft -= offset;
+			p_data->readPtr += offset;
+			p_data->bytesLeft -= offset;
 				
 			//fil the inactive outbuffer
-			err = MP3Decode(hMP3Decoder, &readPtr, (int*) &bytesLeft, outbufs[!activeOutbuf].buffer + outbufs[!activeOutbuf].count, 0);
-			MP3DecInfo *mp3DecInfo = (MP3DecInfo *)hMP3Decoder;
+			err = MP3Decode(p_data->hMP3Decoder, &p_data->readPtr, (int*) &p_data->bytesLeft, outbufs[!activeOutbuf].buffer + outbufs[!activeOutbuf].count, 0);
+			MP3DecInfo *mp3DecInfo = (MP3DecInfo *)p_data->hMP3Decoder;
 			outbufs[!activeOutbuf].count += mp3DecInfo->nGrans * mp3DecInfo->nGranSamps * mp3DecInfo->nChans;
 
 			if (err) {
@@ -367,9 +374,7 @@ int Adafruit_MP3::tick(){
  *
  *  @return     none
  ****************************************************************************************/
-#if defined(NRF52)
-extern "C" {
-#endif
+
 void MP3_Handler()
 {
 	//disableTimer();
@@ -392,6 +397,3 @@ void MP3_Handler()
 
 	acknowledgeInterrupt();
 }
-#if defined(NRF52)
-}
-#endif
