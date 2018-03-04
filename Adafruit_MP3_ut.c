@@ -1,34 +1,50 @@
 /*****************************************************************************
  * Static data
  *****************************************************************************/
- static char module_desc[] = "mp3 unit test driver";
- /*
- typedef struct
-{
-	uint16_t	num_of_arg;
-	uint8_t 	argtype[UTMGR_MAX_ARGS];
-} utmgr_test_argtype_t;
-*/
+static char module_desc[] = "mp3 unit test driver";
+
+static utmgr_test_argtype_t tc_0_args_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
+static utmgr_test_argtype_t tc_0_ret_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
+
 static utmgr_test_argtype_t tc_1_args_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
 static utmgr_test_argtype_t tc_1_ret_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
 
 static utmgr_test_argtype_t tc_2_args_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
 static utmgr_test_argtype_t tc_2_ret_desc = {1, {UTMGR_ARG_TYPE_LWORD}}; 
- /*
- typedef struct
-{
-	char *p_test_id;
-	uint8_t (*p_func_tc_prepare)(void *p_in[], void *p_out[]);
-	void (*p_func_tc_run)(void);
-	void (*p_func_tc_cleanup)(void);
-    utmgr_test_argtype_t *p_in_desc;
-	utmgr_test_argtype_t *p_out_desc;
-} utmgr_test_desc_t;
-*/
+
+Adafruit_MP3 mp3_obj;
 
 /*****************************************************************************
  * Static functions
  *****************************************************************************/
+static uint8_t tc_0_prepare(void)
+{
+	SEGGER_RTT_printf(0, "tc 0 prepare\n");
+	return (0);
+}
+
+static void tc_0_run(void *p_in[], void *p_out[])
+{     
+   SEGGER_RTT_printf(0, "tc 0 run\n");
+   SEGGER_RTT_printf(0, "arg 1: %d\n", *(uint32_t *)p_in[0]); 
+
+   Adafruit_MP3_construct(&mp3_obj);
+   Adafruit_MP3_begin(&mp3_obj);
+   *(uint32_t *)p_out[0] = 100;
+}
+
+static void tc_0_cleanup(void)
+{
+    SEGGER_RTT_printf(0, "tc 0 cleanup\n");	
+}
+
+static utmgr_test_desc_t tc_0_desc = {"mp3000",
+                                      tc_0_prepare,
+									  tc_0_run,
+									  tc_0_cleanup,
+									  &tc_0_args_desc,
+									  &tc_0_ret_desc};
+									  
 static uint8_t tc_1_prepare(void)
 {
 	SEGGER_RTT_printf(0, "tc 1 prepare\n");
@@ -40,6 +56,7 @@ static void tc_1_run(void *p_in[], void *p_out[])
    SEGGER_RTT_printf(0, "tc 1 run\n");
    SEGGER_RTT_printf(0, "arg 1: %d\n", *(uint32_t *)p_in[0]); 
 
+   Adafruit_MP3_tick(&mp3_obj);
    *(uint32_t *)p_out[0] = 100;
 }
 
@@ -65,7 +82,7 @@ static void tc_2_run(void *p_in[], void *p_out[])
 {
     SEGGER_RTT_printf(0, "tc 2 run\n");
     SEGGER_RTT_printf(0, "arg 1: %d\n", *(uint32_t *)p_in[0]);
-
+    MP3_Handler();
     *(uint32_t *)p_out[0] = 100;
 }
 
@@ -80,7 +97,7 @@ static utmgr_test_desc_t tc_2_desc = {"mp3002",
 									  tc_2_cleanup,
 									  &tc_2_args_desc,
 									  &tc_2_ret_desc};									  
-static utmgr_test_desc_t *tc_array[] = {&tc_1_desc, &tc_2_desc};
+static utmgr_test_desc_t *tc_array[] = {&tc_0_desc, &tc_1_desc, &tc_2_desc};
 
 static utmgr_test_desc_t *tc_find(char *p_tc_id)
 {
@@ -91,7 +108,7 @@ static utmgr_test_desc_t *tc_find(char *p_tc_id)
     return (0);
 }
 
-static utmgr_module_desc_t module_tc_desc = {module_desc, 2, tc_find};
+static utmgr_module_desc_t module_tc_desc = {module_desc, 3, tc_find};
 /*****************************************************************************
  * Interface functions
  *****************************************************************************/

@@ -36,6 +36,8 @@ static inline void enableTimer()
 #elif defined(__MK66FX1M0__) || defined(__MK20DX256__) // teensy 3.6
 	Adafruit_MP3::_MP3Timer.begin(MP3_Handler, currentPeriod);
 
+#elif defined(UT_SUPPORT)
+	// check UT_SUPPORT and if defined, skip the NRF52 below!
 #elif defined(NRF52)
 	MP3_TIMER->TASKS_START = 1;
 #endif
@@ -54,6 +56,8 @@ static inline void disableTimer()
 	WAIT_TC16_REGS_SYNC(MP3_TC)
 #elif defined(__MK66FX1M0__) || defined(__MK20DX256__) // teensy 3.6
 	Adafruit_MP3::_MP3Timer.end();
+#elif defined(UT_SUPPORT)
+	// check UT_SUPPORT and if defined, skip the NRF52 below!
 #elif defined(NRF52)
 	MP3_TIMER->TASKS_STOP = 1;
 #endif
@@ -105,6 +109,9 @@ static inline void configureTimer()
 	// Enable the TONE_TC interrupt request
 	MP3_TC->COUNT16.INTENSET.bit.MC0 = 1;
 
+#elif defined(UT_SUPPORT)
+	// check UT_SUPPORT and if defined, skip the NRF52 below!
+	
 #elif defined(NRF52)
 
 	NVIC_DisableIRQ(MP3_IRQn);
@@ -134,6 +141,9 @@ static inline void acknowledgeInterrupt()
 		MP3_TC->COUNT16.INTFLAG.bit.MC0 = 1;
 	}
 
+#elif defined(UT_SUPPORT)
+	// check UT_SUPPORT and if defined, skip the NRF52 below!
+	
 #elif defined(NRF52)
 	MP3_TIMER->EVENTS_COMPARE[0] = 0;
 	MP3_TIMER->TASKS_CLEAR = 1;
@@ -151,6 +161,9 @@ static inline void updateTimerFreq(uint32_t freq)
 	float sec = 1.0 / (float)freq;
 	currentPeriod = sec * 1000000UL;
 
+#elif defined(UT_SUPPORT)
+	// check UT_SUPPORT and if defined, skip the NRF52 below!
+	
 #elif defined(NRF52)
 
 	MP3_TIMER->CC[0] = 16000000UL/freq;
@@ -250,7 +263,10 @@ void Adafruit_MP3_play(Adafruit_MP3 *p_data)
 	//start the playback timer
 	enableTimer();
 
-#if defined(__SAMD51__) || defined(NRF52) // feather/metro m4
+#if defined(UT_SUPPORT)
+	// check UT_SUPPORT and if defined, skip the NRF52 below!
+	
+#elif defined(__SAMD51__) || defined(NRF52) // feather/metro m4
 	NVIC_EnableIRQ(MP3_IRQn);
 #endif
 }
