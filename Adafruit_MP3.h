@@ -61,18 +61,8 @@ typedef struct {
 	int (*bufferCallback)(uint8_t *, int);	
 } Adafruit_MP3;
 
-void Adafruit_MP3_construct(Adafruit_MP3 *p_data)
-{
-	p_data->hMP3Decoder = NULL;
-	p_data->playing = false;
-	p_data->inbufend = p_data->inBuf + INBUF_SIZE;
-}
-	
-void Adafruit_MP3_destruct(Adafruit_MP3 *p_data)
-{
-	MP3FreeDecoder(p_data->hMP3Decoder);
-};
-
+void Adafruit_MP3_construct(Adafruit_MP3 *p_data);
+	void Adafruit_MP3_destruct(Adafruit_MP3 *p_data);
 bool Adafruit_MP3_begin(Adafruit_MP3 *p_data);
 void Adafruit_MP3_setBufferCallback(Adafruit_MP3 *p_data, int (*fun_ptr)(uint8_t *, int));
 void Adafruit_MP3_setSampleReadyCallback(void (*fun_ptr)(int16_t, int16_t));
@@ -81,5 +71,11 @@ void Adafruit_MP3_stop(void);
 void Adafruit_MP3_resume(void);
 int Adafruit_MP3_findID3Offset(uint8_t *readPtr);
 int Adafruit_MP3_tick(Adafruit_MP3 *p_data);
+
+#ifdef UT_SUPPORT
+#include "utmgr.h"
+#include "SEGGER_RTT.h"
+utmgr_module_desc_t *mp3_get_module_desc(void);
+#endif
 	
 #endif

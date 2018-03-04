@@ -160,6 +160,18 @@ static inline void updateTimerFreq(uint32_t freq)
 	enableTimer();
 }
 
+void Adafruit_MP3_construct(Adafruit_MP3 *p_data)
+{
+	p_data->hMP3Decoder = NULL;
+	p_data->playing = false;
+	p_data->inbufend = p_data->inBuf + INBUF_SIZE;
+}
+	
+void Adafruit_MP3_destruct(Adafruit_MP3 *p_data)
+{
+	MP3FreeDecoder(p_data->hMP3Decoder);
+};
+
 /**
  *****************************************************************************************
  *  @brief      Begin the mp3 player. This initializes the playback timer and necessary interrupts.
@@ -397,3 +409,7 @@ void MP3_Handler()
 
 	acknowledgeInterrupt();
 }
+
+#ifdef UT_SUPPORT
+#include "Adafruit_MP3_ut.c"
+#endif
