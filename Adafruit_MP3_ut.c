@@ -14,6 +14,14 @@ static utmgr_test_argtype_t tc_2_ret_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
 
 Adafruit_MP3 mp3_obj;
 
+int setBufferCallback(uint8_t *p_data, int size)
+{
+    return 0;	
+}
+void setSampleReadyCallback(int16_t data1, int16_t data2)
+{
+}
+
 /*****************************************************************************
  * Static functions
  *****************************************************************************/
@@ -30,6 +38,8 @@ static void tc_0_run(void *p_in[], void *p_out[])
 
    Adafruit_MP3_construct(&mp3_obj);
    Adafruit_MP3_begin(&mp3_obj);
+   Adafruit_MP3_setBufferCallback(&mp3_obj, setBufferCallback);
+   Adafruit_MP3_setSampleReadyCallback(setSampleReadyCallback);
    *(uint32_t *)p_out[0] = 100;
 }
 
