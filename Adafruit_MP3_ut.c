@@ -1,6 +1,8 @@
 /*****************************************************************************
  * Static data
  *****************************************************************************/
+#include "mp3_sample.c"
+
 static char module_desc[] = "mp3 unit test driver";
 
 static utmgr_test_argtype_t tc_0_args_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
@@ -12,12 +14,25 @@ static utmgr_test_argtype_t tc_1_ret_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
 static utmgr_test_argtype_t tc_2_args_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
 static utmgr_test_argtype_t tc_2_ret_desc = {1, {UTMGR_ARG_TYPE_LWORD}}; 
 
-Adafruit_MP3 mp3_obj;
+static Adafruit_MP3 mp3_obj;
+static uint8_t mp3_size;
+static uint8_t mp3_src_idx;
 
 int setBufferCallback(uint8_t *p_data, int size)
-{
-    return 0;	
+{	
+    int bytes_read;
+	
+	if (!mp3_size)
+		return 0;
+	
+	// Watch out for signed int and uint8_t types mixing together
+	bytes_read = (mp3_size >= size) ? size : mp3_size;
+	memcpy(p_data, &mp3data[mp3_src_idx], bytes_read);
+	mp3_src_idx += bytes_read;
+	mp3_size -= bytes_read;
+    return (bytes_read);	
 }
+
 void setSampleReadyCallback(int16_t data1, int16_t data2)
 {
 }
@@ -36,6 +51,8 @@ static void tc_0_run(void *p_in[], void *p_out[])
    SEGGER_RTT_printf(0, "tc 0 run\n");
    SEGGER_RTT_printf(0, "arg 1: %d\n", *(uint32_t *)p_in[0]); 
 
+   mp3_size = sizeof((int)mp3data)/sizeof(mp3data[0]);
+   mp3_src_idx = 0;
    Adafruit_MP3_construct(&mp3_obj);
    Adafruit_MP3_begin(&mp3_obj);
    Adafruit_MP3_setBufferCallback(&mp3_obj, setBufferCallback);

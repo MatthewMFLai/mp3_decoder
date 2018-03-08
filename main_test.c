@@ -34,9 +34,6 @@
 
 #include "utmgr.h"
 #include "Adafruit_MP3.h"
-#include "mp3_sample.c"
-
-uint8_t rc;
 
 /**
  * @brief Function for application main entry.
@@ -52,8 +49,6 @@ int main(void)
 	char tc_ret[64];
 	SEGGER_RTT_Init();
 	SEGGER_RTT_printf(0, "Hello World!\n");
-
-	rc = mp3data[10000] + mp3data[100000];
 		
 	utmgr_register(mp3_get_module_desc());
 	for (;;)
