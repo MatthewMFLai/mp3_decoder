@@ -15,8 +15,8 @@ static utmgr_test_argtype_t tc_2_args_desc = {1, {UTMGR_ARG_TYPE_LWORD}};
 static utmgr_test_argtype_t tc_2_ret_desc = {1, {UTMGR_ARG_TYPE_LWORD}}; 
 
 static Adafruit_MP3 mp3_obj;
-static uint8_t mp3_size;
-static uint8_t mp3_src_idx;
+static uint32_t mp3_size;
+static uint32_t mp3_src_idx;
 
 int setBufferCallback(uint8_t *p_data, int size)
 {	
@@ -35,6 +35,7 @@ int setBufferCallback(uint8_t *p_data, int size)
 
 void setSampleReadyCallback(int16_t data1, int16_t data2)
 {
+	SEGGER_RTT_printf(0, "data1 %d data2 %d\n", data1, data2);
 }
 
 /*****************************************************************************
@@ -51,7 +52,7 @@ static void tc_0_run(void *p_in[], void *p_out[])
    SEGGER_RTT_printf(0, "tc 0 run\n");
    SEGGER_RTT_printf(0, "arg 1: %d\n", *(uint32_t *)p_in[0]); 
 
-   mp3_size = sizeof((int)mp3data)/sizeof(mp3data[0]);
+   mp3_size = sizeof(mp3data)/sizeof(mp3data[0]);
    mp3_src_idx = 0;
    Adafruit_MP3_construct(&mp3_obj);
    Adafruit_MP3_begin(&mp3_obj);

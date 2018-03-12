@@ -27,8 +27,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "nrf_delay.h"
-#include "boards.h"
 
 #include "SEGGER_RTT.h"
 
