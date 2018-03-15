@@ -333,6 +333,7 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 		//time to swap the buffers
 		activeOutbuf = !activeOutbuf;
 		outptr = outbufs[activeOutbuf].buffer;
+		SEGGER_RTT_printf(0, "outbufs swapped\n");
 	}
 	__sd_nvic_irq_enable();
 	

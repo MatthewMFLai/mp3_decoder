@@ -73,9 +73,9 @@ int main(void)
 			i++;
 			memcpy(tc_arg, &inbuf[i], idx - i);
 			tc_arg[idx - i] = TERM0;
-			SEGGER_RTT_printf(0, "tc id: %s arg: %s\n", tc_id, tc_arg);
+			//SEGGER_RTT_printf(0, "tc id: %s arg: %s\n", tc_id, tc_arg);
 			utmgr_exec_tc(tc_id, tc_arg, tc_ret);
-			SEGGER_RTT_printf(0, "Result: %s\n", tc_ret);
+			//SEGGER_RTT_printf(0, "Result: %s\n", tc_ret);
 			
 			// reset buffer index
 			idx = 0;

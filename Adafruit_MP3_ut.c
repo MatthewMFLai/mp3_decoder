@@ -22,14 +22,17 @@ int setBufferCallback(uint8_t *p_data, int size)
 {	
     int bytes_read;
 	
-	if (!mp3_size)
+	if (!mp3_size) {
+		SEGGER_RTT_printf(0, "src buffer empty\n");
 		return 0;
+	}
 	
 	// Watch out for signed int and uint8_t types mixing together
 	bytes_read = (mp3_size >= size) ? size : mp3_size;
 	memcpy(p_data, &mp3data[mp3_src_idx], bytes_read);
 	mp3_src_idx += bytes_read;
 	mp3_size -= bytes_read;
+	SEGGER_RTT_printf(0, "read %d remains %d\n", bytes_read, mp3_size);
     return (bytes_read);	
 }
 
