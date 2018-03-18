@@ -333,7 +333,7 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 		//time to swap the buffers
 		activeOutbuf = !activeOutbuf;
 		outptr = outbufs[activeOutbuf].buffer;
-		SEGGER_RTT_printf(0, "outbufs swapped\n");
+		SEGGER_RTT_printf(0, "MP3:outbufs swapped\n");
 	}
 	__sd_nvic_irq_enable();
 	
@@ -388,7 +388,7 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 			err = MP3Decode(p_data->hMP3Decoder, &p_data->readPtr, (int*) &p_data->bytesLeft, outbufs[!activeOutbuf].buffer + outbufs[!activeOutbuf].count, 0);
 			MP3DecInfo *mp3DecInfo = (MP3DecInfo *)p_data->hMP3Decoder;
 			outbufs[!activeOutbuf].count += mp3DecInfo->nGrans * mp3DecInfo->nGranSamps * mp3DecInfo->nChans;
-
+            SEGGER_RTT_printf(0, "MP3:Inactive buffer count: %d\n", outbufs[!activeOutbuf].count);
 			if (err) {
 				return err;
 			}
@@ -419,6 +419,7 @@ void MP3_Handler()
 			//increment the read position and decrement the remaining sample count
 			outptr += channels;
 			outbufs[activeOutbuf].count -= channels;
+			SEGGER_RTT_printf(0, "MP3:Active buffer count: %d\n", outbufs[activeOutbuf].count);
 		}
 	}
 		
