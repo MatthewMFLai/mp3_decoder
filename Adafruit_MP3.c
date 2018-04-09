@@ -334,6 +334,10 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 		activeOutbuf = !activeOutbuf;
 		outptr = outbufs[activeOutbuf].buffer;
 		SEGGER_RTT_printf(0, "MP3:outbufs swapped\n");
+	} else if(outbufs[activeOutbuf].count == 0 && outbufs[!activeOutbuf].count == 0){
+		SEGGER_RTT_printf(0, "MP3:buffers empty\n");
+	} else {
+		
 	}
 	__sd_nvic_irq_enable();
 	
@@ -353,6 +357,9 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 				int bytesRead = p_data->bufferCallback(p_data->writePtr, p_data->inbufend - p_data->writePtr);
 				p_data->writePtr += bytesRead;
 				p_data->bytesLeft += bytesRead;
+				// Matt's kludge: clear bufferCallback ptr
+				if (!bytesRead)
+					p_data->bufferCallback = NULL;
 			}
 		}
 		
