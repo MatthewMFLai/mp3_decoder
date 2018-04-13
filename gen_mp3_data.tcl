@@ -11,6 +11,7 @@ set line2 "\};"
 set fd [open $infile r]
 fconfigure $fd -translation binary
 set fd2 [open $outfile w]
+puts $fd2 $line1
 
 set count [file size $infile]
 set line ""
