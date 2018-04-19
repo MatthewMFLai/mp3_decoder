@@ -2,6 +2,9 @@
 #include "Adafruit_MP3.h"
 #include "mp3common.h"
 #include "nrf_nvic.h"
+#include "nrf_gpio.h"
+
+#define TEST_PULSE                      12
 
 #if defined(__SAMD51__) // feather/metro m4
 
@@ -178,6 +181,7 @@ void Adafruit_MP3_construct(Adafruit_MP3 *p_data)
 	p_data->hMP3Decoder = NULL;
 	p_data->playing = false;
 	p_data->inbufend = p_data->inBuf + INBUF_SIZE;
+	nrf_gpio_cfg_output(TEST_PULSE);
 }
 	
 void Adafruit_MP3_destruct(Adafruit_MP3 *p_data)
@@ -328,6 +332,7 @@ int Adafruit_MP3_findID3Offset(uint8_t *readPtr)
  *  @return     none
  ****************************************************************************************/
 int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
+	nrf_gpio_pin_set(TEST_PULSE);
 	__sd_nvic_irq_disable();
 	if(outbufs[activeOutbuf].count == 0 && outbufs[!activeOutbuf].count > 0){
 		//time to swap the buffers
@@ -383,6 +388,7 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 				p_data->playing = true;
 				channels = frameInfo.nChans;
 			}
+			nrf_gpio_pin_clear(TEST_PULSE);
 			return 1;
 		}
 		
@@ -397,10 +403,12 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 			outbufs[!activeOutbuf].count += mp3DecInfo->nGrans * mp3DecInfo->nGranSamps * mp3DecInfo->nChans;
             SEGGER_RTT_printf(0, "MP3:Inactive buffer count: %d\n", outbufs[!activeOutbuf].count);
 			if (err) {
+				nrf_gpio_pin_clear(TEST_PULSE);
 				return err;
 			}
 		}
 	}
+	nrf_gpio_pin_clear(TEST_PULSE);
 	return 0;
 }
 
