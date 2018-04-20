@@ -4,7 +4,7 @@
 #include "nrf_nvic.h"
 #include "nrf_gpio.h"
 
-#define TEST_PULSE                      12
+#define TEST_PULSE                      17
 
 #if defined(__SAMD51__) // feather/metro m4
 
@@ -332,7 +332,6 @@ int Adafruit_MP3_findID3Offset(uint8_t *readPtr)
  *  @return     none
  ****************************************************************************************/
 int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
-	nrf_gpio_pin_set(TEST_PULSE);
 	__sd_nvic_irq_disable();
 	if(outbufs[activeOutbuf].count == 0 && outbufs[!activeOutbuf].count > 0){
 		//time to swap the buffers
@@ -347,8 +346,7 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 	__sd_nvic_irq_enable();
 	
 	//if we are running out of samples, and don't yet have another buffer ready, get busy.
-	if(outbufs[activeOutbuf].count < BUFFER_LOWER_THRESH && outbufs[!activeOutbuf].count < (OUTBUF_SIZE) >> 1){
-		
+	if(outbufs[activeOutbuf].count < BUFFER_LOWER_THRESH && outbufs[!activeOutbuf].count < (OUTBUF_SIZE) >> 1){		
 		//dumb, but we need to move any bytes to the beginning of the buffer
 		if(p_data->readPtr != p_data->inBuf && p_data->bytesLeft < BUFFER_LOWER_THRESH){
 			memmove(p_data->inBuf, p_data->readPtr, p_data->bytesLeft);
@@ -359,6 +357,7 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 		//get more data from the user application
 		if(p_data->bufferCallback != NULL){
 			if(p_data->inbufend - p_data->writePtr > 0){
+			    nrf_gpio_pin_set(TEST_PULSE);
 				int bytesRead = p_data->bufferCallback(p_data->writePtr, p_data->inbufend - p_data->writePtr);
 				p_data->writePtr += bytesRead;
 				p_data->bytesLeft += bytesRead;
@@ -401,14 +400,13 @@ int Adafruit_MP3_tick(Adafruit_MP3 *p_data){
 			err = MP3Decode(p_data->hMP3Decoder, &p_data->readPtr, (int*) &p_data->bytesLeft, outbufs[!activeOutbuf].buffer + outbufs[!activeOutbuf].count, 0);
 			MP3DecInfo *mp3DecInfo = (MP3DecInfo *)p_data->hMP3Decoder;
 			outbufs[!activeOutbuf].count += mp3DecInfo->nGrans * mp3DecInfo->nGranSamps * mp3DecInfo->nChans;
+		    nrf_gpio_pin_clear(TEST_PULSE);
             SEGGER_RTT_printf(0, "MP3:Inactive buffer count: %d\n", outbufs[!activeOutbuf].count);
 			if (err) {
-				nrf_gpio_pin_clear(TEST_PULSE);
 				return err;
 			}
 		}
 	}
-	nrf_gpio_pin_clear(TEST_PULSE);
 	return 0;
 }
 
